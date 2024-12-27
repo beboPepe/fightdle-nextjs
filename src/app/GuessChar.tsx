@@ -12,6 +12,7 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
   const [guess, setGuess] = useState<string>("");
 
   const [suggestions, setSuggestions] = useState<CharacterType[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   // Initialize winning character once characters are loaded
   React.useEffect(() => {
@@ -109,51 +110,84 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
   };
 
   return (
-    <div>
-      {/* Input field for the user to type their guess */}
-      <input
-        type="text"
-        value={guess} // Controlled input, bound to the `guess` state
-        onChange={(e) => {
-          setGuess(e.target.value); // Update the `guess` state with the user's input
-          handleInputChange(e); // Trigger a handler for additional processing (e.g., suggestions)
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleGuess(guess); // Trigger the guess submission on pressing Enter
-          }
-        }}
-        placeholder="Enter character name"
-        className="your-input-class"
-      />
-      {/* Button to submit the current guess */}
-      <button onClick={() => handleGuess(guess)}>Submit Guess</button>
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div className="relative">
+        {/* Input Field */}
+        <div className="relative flex items-center">
+          <input
+            type="text"
+            value={guess}
+            onChange={(e) => {
+              setGuess(e.target.value);
+              handleInputChange(e);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowDown") {
+                // Navigate down
+                setHighlightedIndex((prevIndex) =>
+                  prevIndex < suggestions.length - 1 ? prevIndex + 1 : 0
+                );
+              } else if (e.key === "ArrowUp") {
+                // Navigate up
+                setHighlightedIndex((prevIndex) =>
+                  prevIndex > 0 ? prevIndex - 1 : suggestions.length - 1
+                );
+              } else if (e.key === "Enter") {
+                // Select highlighted suggestion if any
+                if (highlightedIndex >= 0) {
+                  const selectedCharacter = suggestions[highlightedIndex];
+                  setGuess(selectedCharacter.name);
+                  setSuggestions([]);
+                  handleGuess(selectedCharacter.name);
+                } else {
+                  handleGuess(guess);
+                  setSuggestions([]); // Clear suggestions
+                }
+              }
+            }}
+            placeholder="Enter character name"
+            className="w-72 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4"
+          />
 
-      {/* Feedback section - displays results or hints for the user's guess */}
-      <div>
+          {/* Submit Button */}
+          <button
+            onClick={() => handleGuess(guess)}
+            className="absolute left-[300px] mb-4 px-6 py-3 text-white bg-blue-500 rounded-lg shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          >
+            Submit
+          </button>
+        </div>
+        {/* Suggestion Dropdown */}
+        {suggestions.length > 0 && (
+          <ul className="absolute top-full left-0 mt-[-14px] w-72 bg-white border border-gray-300 rounded-lg shadow-lg z-10">
+            {suggestions.map((character, index) => (
+              <li
+                key={character.name}
+                onClick={() => {
+                  setGuess(character.name);
+                  setSuggestions([]);
+                  handleGuess(character.name);
+                }}
+                className={`p-2 cursor-pointer ${
+                  index === highlightedIndex
+                    ? "bg-gray-200"
+                    : "hover:bg-gray-200"
+                }`}
+              >
+                {character.name}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {/* Feedback Section */}
+      <div className="mt-4 text-center">
         {feedback.map((line, index) => (
-          <p key={index}>{line}</p> // Render each feedback message
+          <p key={index} className="text-gray-700">
+            {line}
+          </p>
         ))}
       </div>
-
-      {/* Suggestion dropdown - appears if there are any suggestions */}
-      {suggestions.length > 0 && (
-        <ul className="absolute bg-white border rounded shadow mt-2">
-          {suggestions.map((character) => (
-            <li
-              key={character.name} // Unique key for each suggestion (assuming `name` is unique)
-              onClick={() => {
-                setGuess(character.name); // Set the guess to the clicked suggestion
-                setSuggestions([]); // Clear suggestions
-                handleGuess(character.name); // Automatically submit
-              }}
-              className="p-2 hover:bg-gray-200"
-            >
-              {character.name}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 };

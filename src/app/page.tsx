@@ -18,9 +18,9 @@ const Page = async () => {
   }
 
   return (
-    <div>
+    <>
       <GuessChar characters={characters} />
-    </div>
+    </>
   );
 };
 
