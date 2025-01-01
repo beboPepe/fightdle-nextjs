@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import connectDB from "../../lib/db"; // Adjust the path if necessary
-import Character from "../../models/Character"; // Character is now `Character.ts`
+import connectDB from "@/lib/db"; // Adjust the path if necessary
+import Character from "@/models/Character"; // Character is now `Character.ts`
 
 export default async function handler(
   req: NextApiRequest,

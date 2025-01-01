@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Character, { CharacterType } from "../models/Character"; // Adjust the path if needed
+import Character, { CharacterType } from "@/models/Character"; // Adjust the path if needed
 
 const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
   characters,
