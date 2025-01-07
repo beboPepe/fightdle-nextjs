@@ -8,7 +8,9 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
 }) => {
   const [winningCharacter, setWinningCharacter] =
     useState<CharacterType | null>(null);
-  const [feedback, setFeedback] = useState<string[][]>([]);
+  const [feedback, setFeedback] = useState<
+    (string | { value: string; status: string })[][]
+  >([]);
   const [guess, setGuess] = useState<string>("");
 
   const [suggestions, setSuggestions] = useState<CharacterType[]>([]);
@@ -47,7 +49,13 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
     if (!guessedCharacter) {
       setFeedback((prevFeedback) => [
         ...prevFeedback,
-        ["Character not found. Try again!"],
+        [
+          { value: "Character not found", status: "no-match" },
+          { value: "-", status: "no-match" },
+          { value: "-", status: "no-match" },
+          { value: "-", status: "no-match" },
+          { value: "-", status: "no-match" },
+        ],
       ]);
       return;
     }
@@ -56,17 +64,28 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
     if (guessedCharacter.name === winningCharacter?.name) {
       setFeedback((prevFeedback) => [
         ...prevFeedback,
-        ["Correct! You guessed the winning character."],
+        [
+          { value: guessedCharacter.name, status: "match" },
+          { value: guessedCharacter.gender, status: "match" },
+          { value: guessedCharacter.archetype.join(", "), status: "match" },
+          { value: guessedCharacter.birthplace, status: "match" },
+          { value: guessedCharacter.firstAppearance, status: "match" },
+        ],
       ]);
     } else {
       // Compare attributes and generate feedback
-      const feedbackList: string[] = [];
+      const feedbackList = [
+        { value: guessedCharacter.name, status: "no-match" }, // Name won't match since it's not the winning character
+      ];
 
       // Gender check
       if (guessedCharacter.gender === winningCharacter?.gender) {
-        feedbackList.push("Gender matches!");
+        feedbackList.push({ value: guessedCharacter.gender, status: "match" });
       } else {
-        feedbackList.push("Gender does not match.");
+        feedbackList.push({
+          value: guessedCharacter.gender,
+          status: "no-match",
+        });
       }
 
       // Archetype check
@@ -87,27 +106,48 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
 
       // Checking completeness of match
       if (exactArchetypeMatch) {
-        feedbackList.push("Archetype fully matches!");
+        feedbackList.push({
+          value: guessedCharacter.archetype.join(", "),
+          status: "match",
+        });
       } else if (partialArchetypeMatch) {
-        feedbackList.push("Archetype partially matches.");
+        feedbackList.push({
+          value: guessedCharacter.archetype.join(", "),
+          status: "partial",
+        });
       } else {
-        feedbackList.push("Archetype does not match.");
+        feedbackList.push({
+          value: guessedCharacter.archetype.join(", "),
+          status: "no-match",
+        });
       }
 
       // Birthplace check
       if (guessedCharacter.birthplace === winningCharacter?.birthplace) {
-        feedbackList.push("Birthplace matches!");
+        feedbackList.push({
+          value: guessedCharacter.birthplace,
+          status: "match",
+        });
       } else {
-        feedbackList.push("Birthplace does not match.");
+        feedbackList.push({
+          value: guessedCharacter.birthplace,
+          status: "no-match",
+        });
       }
 
       // First appearance check
       if (
         guessedCharacter.firstAppearance === winningCharacter?.firstAppearance
       ) {
-        feedbackList.push("First Appearance matches!");
+        feedbackList.push({
+          value: guessedCharacter.firstAppearance,
+          status: "match",
+        });
       } else {
-        feedbackList.push("First Appearance does not match.");
+        feedbackList.push({
+          value: guessedCharacter.firstAppearance,
+          status: "no-match",
+        });
       }
 
       // Push feedback list
@@ -188,19 +228,39 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
       </div>
       {/* Feedback Section */}
       <div className="mt-4 text-center">
-        <table>
+        <table className="table-auto border-collapse border border-gray-300 w-full">
           <thead>
             <tr>
-              <th>Guess #</th>
-              <th>Feedback</th>
+              <th className="border border-gray-300 px-4 py-2">Name</th>
+              <th className="border border-gray-300 px-4 py-2">Gender</th>
+              <th className="border border-gray-300 px-4 py-2">Archetype</th>
+              <th className="border border-gray-300 px-4 py-2">Birthplace</th>
+              <th className="border border-gray-300 px-4 py-2">
+                First Appearance
+              </th>
             </tr>
           </thead>
           <tbody>
             {[...feedback].reverse().map((guessFeedback, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{guessFeedback.join("///")}</td>
-                {/* Adjust formatting as needed */}
+              <tr key={index} className="border border-gray-300">
+                {guessFeedback.map((feedbackItem, colIndex) => (
+                  <td
+                    key={colIndex}
+                    className={`px-4 py-2 text-center ${
+                      typeof feedbackItem === "string"
+                        ? "" // Handle plain strings if needed
+                        : feedbackItem.status === "match"
+                        ? "bg-green-200"
+                        : feedbackItem.status === "partial"
+                        ? "bg-yellow-200"
+                        : "bg-red-200"
+                    }`}
+                  >
+                    {typeof feedbackItem === "string"
+                      ? feedbackItem
+                      : feedbackItem.value}
+                  </td>
+                ))}
               </tr>
             ))}
           </tbody>
