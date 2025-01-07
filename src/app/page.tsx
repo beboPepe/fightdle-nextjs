@@ -1,4 +1,4 @@
-import GuessChar from "../components/GuessChar"; // Changed from "../models/GuessChar"
+import GuessChar from "@/components/GuessChar"; // Changed from "../models/GuessChar"
 
 const Page = async () => {
   let characters = [];

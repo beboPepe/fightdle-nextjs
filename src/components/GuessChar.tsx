@@ -8,7 +8,7 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
 }) => {
   const [winningCharacter, setWinningCharacter] =
     useState<CharacterType | null>(null);
-  const [feedback, setFeedback] = useState<string[]>([]);
+  const [feedback, setFeedback] = useState<string[][]>([]);
   const [guess, setGuess] = useState<string>("");
 
   const [suggestions, setSuggestions] = useState<CharacterType[]>([]);
@@ -45,13 +45,19 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
       (c) => c.name.toLowerCase() === guessedName.trim().toLowerCase()
     );
     if (!guessedCharacter) {
-      setFeedback(["Character not found. Try again!"]);
+      setFeedback((prevFeedback) => [
+        ...prevFeedback,
+        ["Character not found. Try again!"],
+      ]);
       return;
     }
 
     // Check if the guessed character is the winning character
     if (guessedCharacter.name === winningCharacter?.name) {
-      setFeedback(["Correct! You guessed the winning character."]);
+      setFeedback((prevFeedback) => [
+        ...prevFeedback,
+        ["Correct! You guessed the winning character."],
+      ]);
     } else {
       // Compare attributes and generate feedback
       const feedbackList: string[] = [];
@@ -105,7 +111,7 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
       }
 
       // Push feedback list
-      setFeedback(feedbackList);
+      setFeedback((prevFeedback) => [...prevFeedback, feedbackList]);
     }
   };
 
@@ -182,11 +188,23 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
       </div>
       {/* Feedback Section */}
       <div className="mt-4 text-center">
-        {feedback.map((line, index) => (
-          <p key={index} className="text-gray-700">
-            {line}
-          </p>
-        ))}
+        <table>
+          <thead>
+            <tr>
+              <th>Guess #</th>
+              <th>Feedback</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...feedback].reverse().map((guessFeedback, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{guessFeedback.join("///")}</td>
+                {/* Adjust formatting as needed */}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
