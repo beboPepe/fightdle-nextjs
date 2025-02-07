@@ -16,13 +16,36 @@ const GuessingGame: React.FC<{ characters: CharacterType[] }> = ({
   const [suggestions, setSuggestions] = useState<CharacterType[]>([]);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
+  //Creates Hash based on date to set winning character consistently across users
+  function getDailyCharacter(
+    characters: CharacterType[],
+    date: Date
+  ): CharacterType {
+    // Format the date as "YYYY-MM-DD" for consistency
+    const dateString = date.toISOString().split("T")[0];
+
+    // Create a hash from the date string
+    let hash = 0;
+    for (let i = 0; i < dateString.length; i++) {
+      hash = (hash << 5) - hash + dateString.charCodeAt(i);
+      hash |= 0; // Convert to 32-bit integer
+    }
+
+    // Use the hash to pick an index within the bounds of the characters array
+    const index = Math.abs(hash) % characters.length;
+    return characters[index];
+  }
+
   // Initialize winning character once characters are loaded
   React.useEffect(() => {
-    if (characters.length > 0 && !winningCharacter) {
-      setWinningCharacter(
-        characters.find((character) => character.name === "Ryu") ||
-          characters[0]
+    if (characters.length > 0) {
+      const today = new Date();
+      const dailyCharacter = getDailyCharacter(
+        characters,
+        new Date("2025-06-28")
       );
+      console.log(dailyCharacter);
+      setWinningCharacter(dailyCharacter);
     }
   }, [characters]);
 

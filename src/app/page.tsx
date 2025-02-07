@@ -1,11 +1,11 @@
-import GuessChar from "@/components/GuessChar"; // Changed from "../models/GuessChar"
+import GuessChar from "@/components/GuessChar";
 
 const Page = async () => {
   let characters = [];
 
   try {
     const response = await fetch("http://localhost:3000/api/characters", {
-      next: { revalidate: 3600 }, // Optional: Cache the data and revalidate every hour
+      next: { revalidate: 3600 }, //Cache the data and revalidate every hour
     });
 
     if (!response.ok) {
@@ -13,6 +13,7 @@ const Page = async () => {
     }
 
     characters = await response.json();
+    //console.log(characters);
   } catch (error) {
     console.error("Error fetching characters:", error);
   }
