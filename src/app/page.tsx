@@ -1,27 +1,12 @@
 import GuessChar from "@/components/GuessChar";
+import Link from "next/link";
 
 const Page = async () => {
-  let characters = [];
-
-  try {
-    const response = await fetch("http://localhost:3000/api/characters", {
-      next: { revalidate: 3600 }, //Cache the data and revalidate every hour
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch characters");
-    }
-
-    characters = await response.json();
-    //console.log(characters);
-  } catch (error) {
-    console.error("Error fetching characters:", error);
-  }
-
   return (
-    <>
-      <GuessChar characters={characters} />
-    </>
+    <div>
+      <h1>Welcome to My App</h1>
+      <Link href="/guessingGame">Go to the Game</Link>
+    </div>
   );
 };
 
